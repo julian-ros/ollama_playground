@@ -1,4 +1,4 @@
-from src.global_config import GlobalConfig
+from .global_config import GlobalConfig
 from langchain_community.llms import Ollama
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory

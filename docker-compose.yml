@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # Ollama service for chat (Streamlit frontend)
+  ollama_chat:
+    image: ollama/ollama:latest
+    container_name: ollama_chat
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_chat_data:/root/.ollama
+      - ./ollama_entrypoint.sh:/entrypoint.sh
+    environment:
+      - OLLAMA_MODEL_TYPE=chat
+      - OLLAMA_CHAT_MODEL=llama3.2
+      - OLLAMA_EMBEDDINGS_MODEL=all-minilm
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Ollama service for embeddings (Embeddings API)
+  ollama_embeddings:
+    image: ollama/ollama:latest
+    container_name: ollama_embeddings
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_embeddings_data:/root/.ollama
+      - ./ollama_entrypoint.sh:/entrypoint.sh
+    environment:
+      - OLLAMA_MODEL_TYPE=embeddings
+      - OLLAMA_CHAT_MODEL=llama2
+      - OLLAMA_EMBEDDINGS_MODEL=all-minilm
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Embeddings API service
+  embeddings-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.embeddings-api
+    container_name: embeddings_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - embeddings_cache:/app/embeddings
+    environment:
+      - OLLAMA_BASE_URL=http://ollama_embeddings:11434
+      - OLLAMA_CHAT_MODEL=llama2
+      - OLLAMA_EMBEDDINGS_MODEL=all-minilm
+      - EMBEDDINGS_DATA_PATH=/app/data
+    depends_on:
+      ollama_embeddings:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  # Streamlit frontend service
+  streamlit-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit-frontend
+    container_name: streamlit_frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - EMBEDDINGS_API_URL=http://embeddings-api:8000
+      - OLLAMA_BASE_URL=http://ollama_chat:11434
+      - OLLAMA_CHAT_MODEL=llama3.2
+    depends_on:
+      ollama_chat:
+        condition: service_healthy
+      embeddings-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  ollama_chat_data:
+    driver: local
+  ollama_embeddings_data:
+    driver: local
+  embeddings_cache:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

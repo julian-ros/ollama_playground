@@ -1,9 +1,9 @@
 import json
 from fastapi import APIRouter, Request
-from src.vector_search_api import VectorSearchAPI
-from src.summarizer import Summarizer
-from src.chat_completion import ChatCompletion
-from src.global_config import GlobalConfig
+from .src.vector_search_api import VectorSearchAPI
+from .src.summarizer import Summarizer
+from .src.chat_completion import ChatCompletion
+from .src.global_config import GlobalConfig
 
 chat_api = APIRouter()
 vector_search_api = VectorSearchAPI()

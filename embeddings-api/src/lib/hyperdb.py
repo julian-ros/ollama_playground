@@ -2,10 +2,10 @@ import gzip
 import pickle
 import logging
 import numpy as np
-from src.global_config import GlobalConfig
+from ..global_config import GlobalConfig
 from langchain_community.embeddings import OllamaEmbeddings
 
-from src.lib.galaxy_brain_math import (
+from .galaxy_brain_math import (
     dot_product,
     adams_similarity,
     cosine_similarity,

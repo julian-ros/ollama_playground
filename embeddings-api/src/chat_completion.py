@@ -1,5 +1,5 @@
 from langchain_community.llms import Ollama
-from src.global_config import GlobalConfig
+from .global_config import GlobalConfig
 
 config = GlobalConfig()
 

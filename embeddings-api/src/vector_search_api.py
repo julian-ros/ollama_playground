@@ -1,5 +1,5 @@
-from src.lib.hyperdb import HyperDB
-from src.global_config import GlobalConfig
+from .lib.hyperdb import HyperDB
+from .global_config import GlobalConfig
 import os
 import logging
 from langchain.document_loaders import DirectoryLoader, TextLoader
