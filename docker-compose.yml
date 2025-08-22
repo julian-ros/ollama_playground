@@ -57,7 +57,7 @@ services:
       - ./data:/app/data:ro
       - embeddings_cache:/app/embeddings
     environment:
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL_EMBEDDINGS}
+      - OLLAMA_BASE_URL=http://ollama-embeddings:11434
       - OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL_EMBEDDINGS_API}
       - OLLAMA_EMBEDDINGS_MODEL=${OLLAMA_EMBEDDINGS_MODEL}
       - EMBEDDINGS_DATA_PATH=${EMBEDDINGS_DATA_PATH}
@@ -80,8 +80,8 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - EMBEDDINGS_API_URL=${EMBEDDINGS_API_URL}
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL_CHAT}
+      - EMBEDDINGS_API_URL=http://embeddings-api:8000
+      - OLLAMA_BASE_URL=http://ollama-chat:11434
       - OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL_STREAMLIT}
     depends_on:
       ollama-chat:
