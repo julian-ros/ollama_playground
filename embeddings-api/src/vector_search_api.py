@@ -69,24 +69,52 @@ class VectorSearchAPI:
             # Load markdown files
             if self._has_files_with_extensions(data_path, ['.md', '.markdown']):
                 logger.info("Found markdown files, loading...")
-                md_loader = DirectoryLoader(
-                    data_path, 
-                    glob="**/*.md", 
-                    loader_cls=UnstructuredMarkdownLoader
-                )
-                md_docs = md_loader.load()
-                all_docs.extend(md_docs)
-                logger.info(f"Loaded {len(md_docs)} .md files")
+                try:
+                    md_loader = DirectoryLoader(
+                        data_path, 
+                        glob="**/*.md", 
+                        loader_cls=UnstructuredMarkdownLoader
+                    )
+                    md_docs = md_loader.load()
+                    all_docs.extend(md_docs)
+                    logger.info(f"Loaded {len(md_docs)} .md files")
+                except Exception as e:
+                    logger.error(f"Error loading .md files: {e}")
+                    # Fallback to TextLoader for .md files
+                    logger.info("Falling back to TextLoader for .md files")
+                    md_loader = DirectoryLoader(
+                        data_path, 
+                        glob="**/*.md", 
+                        loader_cls=TextLoader,
+                        loader_kwargs={'encoding': 'utf-8'}
+                    )
+                    md_docs = md_loader.load()
+                    all_docs.extend(md_docs)
+                    logger.info(f"Loaded {len(md_docs)} .md files with TextLoader")
                 
                 # Also load .markdown files
-                markdown_loader = DirectoryLoader(
-                    data_path, 
-                    glob="**/*.markdown", 
-                    loader_cls=UnstructuredMarkdownLoader
-                )
-                markdown_docs = markdown_loader.load()
-                all_docs.extend(markdown_docs)
-                logger.info(f"Loaded {len(markdown_docs)} .markdown files")
+                try:
+                    markdown_loader = DirectoryLoader(
+                        data_path, 
+                        glob="**/*.markdown", 
+                        loader_cls=UnstructuredMarkdownLoader
+                    )
+                    markdown_docs = markdown_loader.load()
+                    all_docs.extend(markdown_docs)
+                    logger.info(f"Loaded {len(markdown_docs)} .markdown files")
+                except Exception as e:
+                    logger.error(f"Error loading .markdown files: {e}")
+                    # Fallback to TextLoader for .markdown files
+                    logger.info("Falling back to TextLoader for .markdown files")
+                    markdown_loader = DirectoryLoader(
+                        data_path, 
+                        glob="**/*.markdown", 
+                        loader_cls=TextLoader,
+                        loader_kwargs={'encoding': 'utf-8'}
+                    )
+                    markdown_docs = markdown_loader.load()
+                    all_docs.extend(markdown_docs)
+                    logger.info(f"Loaded {len(markdown_docs)} .markdown files with TextLoader")
             
             logger.info("Scanning for JSON files (.json)...")
             # Load JSON files
@@ -143,10 +171,8 @@ class VectorSearchAPI:
         
         if found_files:
             logger.info(f"Found {len(found_files)} files with extensions {extensions}")
-            for file in found_files[:5]:  # Log first 5 files
+            for file in found_files:  # Log all files for debugging
                 logger.info(f"  - {file}")
-            if len(found_files) > 5:
-                logger.info(f"  ... and {len(found_files) - 5} more files")
         
         return len(found_files) > 0
 
