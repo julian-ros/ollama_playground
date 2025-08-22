@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Install curl (required for health checks and API calls)
+apk add --no-cache curl
+
 # Start Ollama server in the background
 ollama serve &
 
