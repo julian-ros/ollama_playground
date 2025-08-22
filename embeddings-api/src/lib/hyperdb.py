@@ -1,6 +1,7 @@
 import gzip
 import pickle
 import logging
+import os
 import numpy as np
 from ..global_config import GlobalConfig
 from langchain_community.embeddings import OllamaEmbeddings
