@@ -1,0 +1,133 @@
+{
+  "webhooks_api": {
+    "overview": "CloudSync Webhooks allow you to receive real-time notifications when events occur in your account",
+    "base_url": "https://api.cloudsync.com/v1/webhooks",
+    "authentication": "Bearer token required in Authorization header",
+    "supported_events": [
+      "file.uploaded",
+      "file.updated", 
+      "file.deleted",
+      "file.shared",
+      "folder.created",
+      "folder.updated",
+      "folder.deleted",
+      "share.created",
+      "share.accessed",
+      "share.expired",
+      "user.invited",
+      "user.joined",
+      "sync.completed",
+      "sync.failed"
+    ],
+    "endpoints": {
+      "create_webhook": {
+        "method": "POST",
+        "path": "/v1/webhooks",
+        "description": "Create a new webhook endpoint",
+        "request_body": {
+          "url": "https://your-app.com/webhooks/cloudsync",
+          "events": ["file.uploaded", "file.deleted"],
+          "secret": "your_webhook_secret",
+          "active": true,
+          "description": "Webhook for file events"
+        },
+        "response": {
+          "id": "webhook_123abc",
+          "url": "https://your-app.com/webhooks/cloudsync",
+          "events": ["file.uploaded", "file.deleted"],
+          "secret": "your_webhook_secret",
+          "active": true,
+          "created_at": "2024-01-15T10:30:00Z",
+          "last_delivery": null,
+          "delivery_count": 0
+        }
+      },
+      "list_webhooks": {
+        "method": "GET", 
+        "path": "/v1/webhooks",
+        "description": "List all webhook endpoints",
+        "query_parameters": {
+          "active": "Filter by active status (true/false)",
+          "limit": "Number of webhooks to return (default: 50)",
+          "offset": "Number of webhooks to skip (default: 0)"
+        }
+      },
+      "get_webhook": {
+        "method": "GET",
+        "path": "/v1/webhooks/{webhook_id}",
+        "description": "Get details of a specific webhook"
+      },
+      "update_webhook": {
+        "method": "PUT",
+        "path": "/v1/webhooks/{webhook_id}",
+        "description": "Update webhook configuration"
+      },
+      "delete_webhook": {
+        "method": "DELETE",
+        "path": "/v1/webhooks/{webhook_id}",
+        "description": "Delete a webhook endpoint"
+      },
+      "test_webhook": {
+        "method": "POST",
+        "path": "/v1/webhooks/{webhook_id}/test",
+        "description": "Send a test payload to webhook endpoint"
+      }
+    },
+    "webhook_payload_examples": {
+      "file_uploaded": {
+        "event": "file.uploaded",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "data": {
+          "file": {
+            "id": "file_abc123",
+            "name": "document.pdf",
+            "size": 2048576,
+            "mime_type": "application/pdf",
+            "folder_id": "folder_xyz789",
+            "uploaded_by": "user_def456"
+          },
+          "user": {
+            "id": "user_def456",
+            "email": "john@example.com",
+            "name": "John Doe"
+          }
+        }
+      },
+      "share_accessed": {
+        "event": "share.accessed",
+        "timestamp": "2024-01-15T10:30:00Z",
+        "data": {
+          "share": {
+            "id": "share_ghi789",
+            "resource_type": "file",
+            "resource_id": "file_abc123"
+          },
+          "access": {
+            "ip_address": "192.168.1.100",
+            "user_agent": "Mozilla/5.0...",
+            "action": "download"
+          }
+        }
+      }
+    },
+    "security": {
+      "signature_verification": {
+        "description": "CloudSync signs webhook payloads with HMAC-SHA256",
+        "header": "X-CloudSync-Signature",
+        "algorithm": "sha256",
+        "example": "sha256=a1b2c3d4e5f6..."
+      },
+      "ip_whitelist": [
+        "52.89.214.238",
+        "34.212.96.218", 
+        "54.218.53.128"
+      ]
+    },
+    "delivery_settings": {
+      "timeout": "30 seconds",
+      "retry_attempts": 3,
+      "retry_intervals": ["1 minute", "5 minutes", "30 minutes"],
+      "failure_threshold": "10 consecutive failures will disable webhook"
+    }
+  }
+}

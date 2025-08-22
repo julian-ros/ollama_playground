@@ -1,0 +1,101 @@
+CloudSync API Error Codes Reference
+
+HTTP Status Codes and Error Messages
+
+200 OK - Request successful
+201 Created - Resource created successfully  
+204 No Content - Request successful, no content returned
+400 Bad Request - Invalid request parameters
+401 Unauthorized - Invalid or missing API key
+403 Forbidden - Insufficient permissions
+404 Not Found - Resource not found
+409 Conflict - Resource conflict (e.g., duplicate name)
+413 Payload Too Large - File size exceeds limits
+429 Too Many Requests - Rate limit exceeded
+500 Internal Server Error - Server error
+502 Bad Gateway - Upstream service error
+503 Service Unavailable - Service temporarily unavailable
+
+Detailed Error Codes:
+
+AUTH_001 - Invalid API key format
+AUTH_002 - API key not found
+AUTH_003 - API key expired
+AUTH_004 - API key revoked
+AUTH_005 - Insufficient permissions for operation
+
+FILE_001 - File not found
+FILE_002 - File name too long (max 255 characters)
+FILE_003 - Invalid file type
+FILE_004 - File size exceeds limit
+FILE_005 - Duplicate file name in folder
+FILE_006 - File is locked by another user
+FILE_007 - File corrupted during upload
+FILE_008 - Virus detected in file
+FILE_009 - File processing failed
+
+FOLDER_001 - Folder not found
+FOLDER_002 - Folder name too long (max 255 characters)
+FOLDER_003 - Invalid folder name characters
+FOLDER_004 - Duplicate folder name in parent
+FOLDER_005 - Cannot delete non-empty folder
+FOLDER_006 - Maximum folder depth exceeded (20 levels)
+FOLDER_007 - Cannot move folder to its own subfolder
+
+SHARE_001 - Share not found
+SHARE_002 - Share expired
+SHARE_003 - Share password incorrect
+SHARE_004 - Share download limit exceeded
+SHARE_005 - Invalid recipient email address
+SHARE_006 - Cannot share with yourself
+SHARE_007 - Recipient already has access
+
+STORAGE_001 - Insufficient storage space
+STORAGE_002 - Storage quota exceeded
+STORAGE_003 - Account suspended
+STORAGE_004 - Storage service unavailable
+
+SYNC_001 - Sync conflict detected
+SYNC_002 - Sync service unavailable
+SYNC_003 - Device not authorized
+SYNC_004 - Sync timeout
+
+WEBHOOK_001 - Webhook URL invalid
+WEBHOOK_002 - Webhook delivery failed
+WEBHOOK_003 - Webhook signature invalid
+WEBHOOK_004 - Webhook timeout
+WEBHOOK_005 - Too many webhook failures
+
+RATE_001 - API rate limit exceeded
+RATE_002 - Upload rate limit exceeded  
+RATE_003 - Download rate limit exceeded
+RATE_004 - Request rate limit exceeded
+
+VALIDATION_001 - Missing required field
+VALIDATION_002 - Invalid field format
+VALIDATION_003 - Field value out of range
+VALIDATION_004 - Invalid JSON format
+VALIDATION_005 - Request body too large
+
+Common Error Response Format:
+{
+  "error": "FILE_001",
+  "message": "The requested file does not exist",
+  "code": 404,
+  "details": {
+    "file_id": "file_abc123",
+    "timestamp": "2024-01-15T10:30:00Z"
+  },
+  "help_url": "https://docs.cloudsync.com/errors/FILE_001"
+}
+
+Rate Limiting Headers:
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1642248300
+
+Retry Guidelines:
+- 429 errors: Use exponential backoff
+- 5xx errors: Retry after 1-5 seconds
+- Network errors: Retry up to 3 times
+- File upload errors: Resume from last chunk
