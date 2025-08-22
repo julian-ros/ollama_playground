@@ -15,9 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY streamlit-frontend/ .
 
 # Set environment variables
-ENV EMBEDDINGS_API_URL=http://embeddings-api:8000
-ENV OLLAMA_BASE_URL=http://ollama_chat:11434
-ENV OLLAMA_CHAT_MODEL=llama3.2
+ENV EMBEDDINGS_API_URL=${EMBEDDINGS_API_URL:-http://embeddings-api:8000}
+ENV OLLAMA_BASE_URL=${OLLAMA_BASE_URL_CHAT:-http://ollama_chat:11434}
+ENV OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL_STREAMLIT:-llama3.2}
 
 # Expose port
 EXPOSE 8501

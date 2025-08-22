@@ -32,18 +32,29 @@ Both services run in Docker containers with dedicated OLLAMA instances:
    cd <project-directory>
    ```
 
-2. **Add your documents:**
+2. **Configure models (optional):**
+   ```bash
+   # Edit .env file to change models
+   nano .env
+   ```
+   
+   Available models you can configure:
+   - `OLLAMA_CHAT_MODEL_STREAMLIT`: Model for Streamlit chat (default: llama3.2)
+   - `OLLAMA_CHAT_MODEL_EMBEDDINGS_API`: Model for embeddings API chat (default: llama2)
+   - `OLLAMA_EMBEDDINGS_MODEL`: Model for document embeddings (default: all-minilm)
+
+3. **Add your documents:**
    ```bash
    # Place your documents in the data directory
    cp your-documents/* data/
    ```
 
-3. **Start all services:**
+4. **Start all services:**
    ```bash
    docker-compose up --build
    ```
 
-4. **Access the applications:**
+5. **Access the applications:**
    - Streamlit Frontend: http://localhost:8501
    - Embeddings API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs

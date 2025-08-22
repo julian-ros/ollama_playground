@@ -12,8 +12,9 @@ services:
       - ./ollama_entrypoint.sh:/entrypoint.sh
     environment:
       - OLLAMA_MODEL_TYPE=chat
-      - OLLAMA_CHAT_MODEL=llama3.2
-      - OLLAMA_EMBEDDINGS_MODEL=all-minilm
+      - OLLAMA_CHAT_MODEL_STREAMLIT=${OLLAMA_CHAT_MODEL_STREAMLIT}
+      - OLLAMA_CHAT_MODEL_EMBEDDINGS_API=${OLLAMA_CHAT_MODEL_EMBEDDINGS_API}
+      - OLLAMA_EMBEDDINGS_MODEL=${OLLAMA_EMBEDDINGS_MODEL}
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -33,8 +34,9 @@ services:
       - ./ollama_entrypoint.sh:/entrypoint.sh
     environment:
       - OLLAMA_MODEL_TYPE=embeddings
-      - OLLAMA_CHAT_MODEL=llama2
-      - OLLAMA_EMBEDDINGS_MODEL=all-minilm
+      - OLLAMA_CHAT_MODEL_STREAMLIT=${OLLAMA_CHAT_MODEL_STREAMLIT}
+      - OLLAMA_CHAT_MODEL_EMBEDDINGS_API=${OLLAMA_CHAT_MODEL_EMBEDDINGS_API}
+      - OLLAMA_EMBEDDINGS_MODEL=${OLLAMA_EMBEDDINGS_MODEL}
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -55,10 +57,10 @@ services:
       - ./data:/app/data:ro
       - embeddings_cache:/app/embeddings
     environment:
-      - OLLAMA_BASE_URL=http://ollama_embeddings:11434
-      - OLLAMA_CHAT_MODEL=llama2
-      - OLLAMA_EMBEDDINGS_MODEL=all-minilm
-      - EMBEDDINGS_DATA_PATH=/app/data
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL_EMBEDDINGS}
+      - OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL_EMBEDDINGS_API}
+      - OLLAMA_EMBEDDINGS_MODEL=${OLLAMA_EMBEDDINGS_MODEL}
+      - EMBEDDINGS_DATA_PATH=${EMBEDDINGS_DATA_PATH}
     depends_on:
       ollama_embeddings:
         condition: service_healthy
@@ -78,9 +80,9 @@ services:
     ports:
       - "8501:8501"
     environment:
-      - EMBEDDINGS_API_URL=http://embeddings-api:8000
-      - OLLAMA_BASE_URL=http://ollama_chat:11434
-      - OLLAMA_CHAT_MODEL=llama3.2
+      - EMBEDDINGS_API_URL=${EMBEDDINGS_API_URL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL_CHAT}
+      - OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL_STREAMLIT}
     depends_on:
       ollama_chat:
         condition: service_healthy
