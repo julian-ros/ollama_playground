@@ -18,12 +18,19 @@ class Summarizer:
             # Convert conversation to text format
             conversation_text = self._format_conversation(conversation)
             
-            # Create summarization prompt
-            prompt = f"""Please provide a concise summary of the following conversation:
+            # Create improved summarization prompt
+            prompt = f"""Please provide a concise summary of the following conversation. 
+IMPORTANT: Preserve and highlight key details such as:
+- Names, personal information, and user preferences
+- Important facts, dates, and specific details mentioned
+- Context that would be helpful for continuing the conversation
+- Any ongoing topics or questions
+
+Conversation to summarize:
 
 {conversation_text}
 
-Summary:"""
+Detailed Summary (preserving key information):"""
             
             summary = self.llm.invoke(prompt)
             return summary

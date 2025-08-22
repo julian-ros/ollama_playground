@@ -31,7 +31,8 @@ def main():
     # Sidebar for configuration
     with st.sidebar:
         st.header("Configuration")
-        use_embeddings = st.checkbox("Use Document Context", value=True)
+        retrieve_embeddings = st.checkbox("Retrieve Embeddings", value=True, help="Include relevant document context in responses")
+        include_history = st.checkbox("Include Conversation History", value=True, help="Summarize and include previous conversation context")
         st.info(f"Chat Model: {OLLAMA_CHAT_MODEL}")
         st.info(f"Embeddings API: {EMBEDDINGS_API_URL}")
         
@@ -59,9 +60,9 @@ def main():
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 try:
-                    if use_embeddings:
+                    if retrieve_embeddings or include_history:
                         # Use embeddings API for context-aware responses
-                        response = get_embeddings_response(prompt)
+                        response = get_embeddings_response(prompt, retrieve_embeddings, include_history)
                     else:
                         # Use direct Ollama chat
                         ollama_client = get_ollama_client()
@@ -75,16 +76,18 @@ def main():
                     st.error(error_msg)
                     st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
-def get_embeddings_response(prompt):
+def get_embeddings_response(prompt, retrieve_embeddings=True, include_history=True):
     """Get response using embeddings API for context"""
     try:
         # Prepare the conversation format expected by the API
         conversation = {
-            "messages": [
-                {"role": "system", "content": "You are a helpful AI assistant. Use the provided context to answer questions accurately."},
-                {"role": "user", "content": prompt}
-            ]
+            "messages": st.session_state.messages.copy(),
+            "retrieve_embeddings": retrieve_embeddings,
+            "include_history_summary": include_history
         }
+        
+        # Add current prompt to the conversation
+        conversation["messages"].append({"role": "user", "content": prompt})
         
         # Call the embeddings API
         response = requests.post(
