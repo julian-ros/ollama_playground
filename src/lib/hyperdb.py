@@ -2,10 +2,8 @@ import gzip
 import pickle
 import logging
 import numpy as np
-import openai
 from src.global_config import GlobalConfig
-import requests
-import time
+from langchain_community.embeddings import OllamaEmbeddings
 
 from src.lib.galaxy_brain_math import (
     dot_product,
@@ -16,13 +14,21 @@ from src.lib.galaxy_brain_math import (
     hyper_SVM_ranking_algorithm_sort,
 )
 
-MAX_BATCH_SIZE = 2048  # OpenAI batch endpoint max size https://github.com/openai/openai-python/blob/main/openai/embeddings_utils.py#L43
+MAX_BATCH_SIZE = 100  # Reduced batch size for local processing
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+
 def get_embedding(documents, key=None):
-    """Default embedding function that uses OpenAI Embeddings."""
-    config = GlobalConfig()  # create a GlobalConfig instance
+    """Embedding function that uses Ollama Embeddings."""
+    config = GlobalConfig()
+    
+    # Initialize Ollama embeddings
+    embeddings_model = OllamaEmbeddings(
+        model=config.ollama_embeddings_model,
+        base_url=config.ollama_base_url
+    )
+    
     if isinstance(documents, list):
         if isinstance(documents[0], dict):
             texts = []
@@ -32,8 +38,8 @@ def get_embedding(documents, key=None):
                 else:
                     key_chain = [key]
                 for doc in documents:
-                    for key in key_chain:
-                        doc = doc[key]
+                    for k in key_chain:
+                        doc = doc[k]
                     texts.append(doc.replace("\n", " "))
             elif key is None:
                 for doc in documents:
@@ -41,29 +47,25 @@ def get_embedding(documents, key=None):
                     texts.append(text)
         elif isinstance(documents[0], str):
             texts = documents
-    batches = [
-        texts[i : i + MAX_BATCH_SIZE] for i in range(0, len(texts), MAX_BATCH_SIZE)
-    ]
-    embeddings = []
+    else:
+        texts = [documents] if isinstance(documents, str) else [str(documents)]
+    
     try:
+        # Process in batches
+        batches = [
+            texts[i : i + MAX_BATCH_SIZE] for i in range(0, len(texts), MAX_BATCH_SIZE)
+        ]
+        
+        all_embeddings = []
         for i, batch in enumerate(batches):
-            logging.info(f'Creating embeddings for batch number {i+1}')
-            if config.use_azure.lower() == 'true':
-                url = f'{config.azure_endpoint}/openai/deployments/{config.azure_embeddings_deployment_name}/embeddings?api-version=2023-05-15'
-                headers = {
-                    'Content-Type': 'application/json',
-                    'api-key': config.azure_key,
-                }
-                data = {"input": batch}
-                response = requests.post(url, headers=headers, json=data)
-                embeddings.extend(np.array(item["embedding"]) for item in response.json()["data"])
-            else:
-                openai.api_key = config.openai_api_key
-                response = openai.Embedding.create(input=batch, model=config.openai_embeddings_version)
-                embeddings.extend(np.array(item["embedding"]) for item in response["data"])
-        return embeddings
+            logging.info(f'Creating embeddings for batch number {i+1}/{len(batches)}')
+            batch_embeddings = embeddings_model.embed_documents(batch)
+            all_embeddings.extend([np.array(emb) for emb in batch_embeddings])
+        
+        return all_embeddings
     except Exception as e:
-        return 0 
+        logging.error(f"Error generating embeddings: {e}")
+        return []
 
 
 class HyperDB:
@@ -81,15 +83,29 @@ class HyperDB:
         self.embedding_function = embedding_function or (
             lambda docs: get_embedding(docs, key=key)
         )
-        dummy_vector = self.embedding_function(["dummy"])
-        vector_length = len(dummy_vector[0])
-        self.vectors = np.empty((10000, vector_length), dtype=np.float32)  # adjust size as needed
-        self.current_index = 0
-        if vectors is not None:
-            self.vectors = vectors
-            self.documents = documents
+        
+        # Initialize with a dummy vector to get dimensions
+        if not documents and vectors is None:
+            dummy_vector = self.embedding_function(["dummy"])
+            if dummy_vector:
+                vector_length = len(dummy_vector[0])
+                self.vectors = np.empty((10000, vector_length), dtype=np.float32)
+            else:
+                self.vectors = np.empty((10000, 384), dtype=np.float32)  # Default MiniLM dimension
         else:
-            self.add_documents(documents)
+            if vectors is not None:
+                self.vectors = vectors
+                self.documents = documents
+            else:
+                dummy_vector = self.embedding_function(["dummy"])
+                if dummy_vector:
+                    vector_length = len(dummy_vector[0])
+                    self.vectors = np.empty((10000, vector_length), dtype=np.float32)
+                else:
+                    self.vectors = np.empty((10000, 384), dtype=np.float32)
+                self.add_documents(documents)
+        
+        self.current_index = len(self.documents) if documents else 0
 
         if similarity_metric.__contains__("dot"):
             self.similarity_metric = dot_product
@@ -106,13 +122,12 @@ class HyperDB:
                 "Similarity metric not supported. Please use either 'dot', 'cosine', 'euclidean', 'adams', or 'derrida'."
             )
 
-
     def dict(self, vectors=False):
         if vectors:
             return [
                 {"document": document, "vector": vector.tolist(), "index": index}
                 for index, (document, vector) in enumerate(
-                    zip(self.documents, self.vectors)
+                    zip(self.documents, self.vectors[:self.current_index])
                 )
             ]
         return [
@@ -126,11 +141,18 @@ class HyperDB:
         self.add_documents(documents, vectors)
 
     def add_document(self, document, vector=None):
-        vector = (
-            vector if vector is not None else self.embedding_function(document)
-        )
+        if vector is None:
+            embeddings = self.embedding_function([document])
+            if not embeddings:
+                logging.warning(f"Failed to generate embedding for document: {document}")
+                return
+            vector = embeddings[0]
+        
         if self.current_index >= len(self.vectors):
-            self.vectors = np.vstack([self.vectors, np.empty((10000, len(vector)), dtype=np.float32)])  # adjust size as needed
+            # Expand the array
+            new_vectors = np.empty((10000, len(vector)), dtype=np.float32)
+            self.vectors = np.vstack([self.vectors, new_vectors])
+        
         self.vectors[self.current_index] = vector
         self.current_index += 1
         self.documents.append(document)
@@ -141,18 +163,23 @@ class HyperDB:
     def remove_document(self, index):
         self.vectors = np.delete(self.vectors, index, axis=0)
         self.documents.pop(index)
+        self.current_index -= 1
 
     def add_documents(self, documents, vectors=None):
         if not documents:
             return
-        vectors = vectors or np.array(self.embedding_function(documents)).astype(
-            np.float32
-        )
+        
+        if vectors is None:
+            vectors = self.embedding_function(documents)
+            if not vectors:
+                logging.warning("Failed to generate embeddings for documents")
+                return
+        
         for vector, document in zip(vectors, documents):
             self.add_document(document, vector)
 
     def save(self, storage_file):
-        data = {"vectors": self.vectors, "documents": self.documents}
+        data = {"vectors": self.vectors[:self.current_index], "documents": self.documents}
         with gzip.open(storage_file, "wb") as f:
             pickle.dump(data, f)
 
@@ -162,18 +189,24 @@ class HyperDB:
                 data = pickle.load(f)
             self.vectors = data["vectors"].astype(np.float32)
             self.documents = data["documents"]
+            self.current_index = len(self.documents)
         except FileNotFoundError:
             print(f"File {storage_file} not found.")
 
-
     def query(self, query_text, top_k=5, return_similarities=True):
-        query_vector = self.embedding_function([query_text])[0]
+        if self.current_index == 0:
+            return [] if return_similarities else []
+            
+        query_embeddings = self.embedding_function([query_text])
+        if not query_embeddings:
+            return [] if return_similarities else []
+            
+        query_vector = query_embeddings[0]
         ranked_results, similarities = hyper_SVM_ranking_algorithm_sort(
-            self.vectors, query_vector, top_k=top_k, metric=self.similarity_metric
+            self.vectors[:self.current_index], query_vector, top_k=top_k, metric=self.similarity_metric
         )
         if return_similarities:
             return list(
                 zip([self.documents[index] for index in ranked_results], similarities)
             )
         return [self.documents[index] for index in ranked_results]
-
