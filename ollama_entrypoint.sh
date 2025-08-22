@@ -1,15 +1,13 @@
 #!/bin/bash
 
-# Install curl (required for health checks and API calls)
-apk add --no-cache curl
-
 # Start Ollama server in the background
 ollama serve &
 
-# Wait for Ollama to be ready
+# Wait for Ollama to be ready (using ollama list instead of curl)
 echo "Waiting for Ollama server to start..."
-while ! curl -s http://localhost:11434/api/tags > /dev/null; do
+while ! ollama list > /dev/null 2>&1; do
     sleep 2
+    echo "Still waiting for Ollama..."
 done
 
 echo "Ollama server is ready!"
