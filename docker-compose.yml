@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   # Ollama service for chat (Streamlit frontend)
-  ollama_chat:
+  ollama-chat:
     image: ollama/ollama:latest
-    container_name: ollama_chat
+    container_name: ollama_chat_service
     ports:
       - "11434:11434"
     volumes:
-      - ollama_chat_data:/root/.ollama
+      - ollama_chat_service_data:/root/.ollama
       - ./ollama_entrypoint.sh:/entrypoint.sh
     environment:
       - OLLAMA_MODEL_TYPE=chat
@@ -24,13 +24,13 @@ services:
       start_period: 60s
 
   # Ollama service for embeddings (Embeddings API)
-  ollama_embeddings:
+  ollama-embeddings:
     image: ollama/ollama:latest
-    container_name: ollama_embeddings
+    container_name: ollama_embeddings_service
     ports:
       - "11435:11434"
     volumes:
-      - ollama_embeddings_data:/root/.ollama
+      - ollama_embeddings_service_data:/root/.ollama
       - ./ollama_entrypoint.sh:/entrypoint.sh
     environment:
       - OLLAMA_MODEL_TYPE=embeddings
@@ -62,7 +62,7 @@ services:
       - OLLAMA_EMBEDDINGS_MODEL=${OLLAMA_EMBEDDINGS_MODEL}
       - EMBEDDINGS_DATA_PATH=${EMBEDDINGS_DATA_PATH}
     depends_on:
-      ollama_embeddings:
+      ollama-embeddings:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
@@ -84,7 +84,7 @@ services:
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL_CHAT}
       - OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL_STREAMLIT}
     depends_on:
-      ollama_chat:
+      ollama-chat:
         condition: service_healthy
       embeddings-api:
         condition: service_healthy
@@ -96,9 +96,9 @@ services:
       start_period: 60s
 
 volumes:
-  ollama_chat_data:
+  ollama_chat_service_data:
     driver: local
-  ollama_embeddings_data:
+  ollama_embeddings_service_data:
     driver: local
   embeddings_cache:
     driver: local
