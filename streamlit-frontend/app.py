@@ -90,7 +90,7 @@ def get_embeddings_response(prompt):
         response = requests.post(
             f"{EMBEDDINGS_API_URL}/chat",
             json={"text": json.dumps(conversation)},
-            timeout=30
+            timeout=120
         )
         
         if response.status_code == 200:
