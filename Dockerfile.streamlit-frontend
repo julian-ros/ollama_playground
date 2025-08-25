@@ -30,7 +30,7 @@ RUN if [ -s /usr/local/share/ca-certificates/extra/my_corporate_ca.crt ]; then \
     fi
 
 # Source the profile script to make PIP_CERT active for this build step
-RUN . /etc/profile.d/pip_cert.sh 2>/dev/null || true
+RUN if [ -f /etc/profile.d/pip_cert.sh ]; then . /etc/profile.d/pip_cert.sh; fi
 
 # Copy requirements and install Python dependencies
 # pip will use the PIP_CERT if it was set in the previous step.
