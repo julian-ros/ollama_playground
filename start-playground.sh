@@ -6,6 +6,21 @@ if [ -f .env ]; then
     export $(grep -v '^#' .env | xargs)
 fi
 
+# Check for 'ollama_data' Docker volume and create if it doesn't exist
+echo "Checking for 'ollama_data' Docker volume..."
+if ! docker volume inspect ollama_data &> /dev/null; then
+    echo "'ollama_data' volume not found. Creating it now..."
+    docker volume create ollama_data
+    if [ $? -eq 0 ]; then
+        echo "'ollama_data' volume created successfully."
+    else
+        echo "Error: Failed to create 'ollama_data' volume. Please check your Docker installation."
+        exit 1
+    fi
+else
+    echo "'ollama_data' volume already exists. Reusing it."
+fi
+
 # Define the services to log from the environment variable
 # Default to empty string if not set, which will make the array empty
 SERVICES_TO_LOG=${COMPOSE_LOG_SERVICES:-}
