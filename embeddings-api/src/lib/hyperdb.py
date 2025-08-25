@@ -92,6 +92,7 @@ class HyperDB:
         logger.info("Initializing HyperDB instance")
         documents = documents or []
         self.documents = []
+        self.current_index = 0
         self.vectors = None
         self.embedding_function = embedding_function or (
             lambda docs: get_embedding(docs, key=key)
@@ -115,6 +116,7 @@ class HyperDB:
                 logger.info(f"Loading HyperDB with pre-computed vectors: {len(vectors)} vectors")
                 self.vectors = vectors
                 self.documents = documents
+                self.current_index = len(self.documents)
             else:
                 logger.info("Initializing HyperDB with documents for embedding generation")
                 dummy_vector = self.embedding_function(["dummy"])
@@ -128,7 +130,6 @@ class HyperDB:
                 logger.info(f"Adding {len(documents)} documents to HyperDB")
                 self.add_documents(documents)
         
-        self.current_index = len(self.documents) if documents else 0
         logger.info(f"HyperDB initialized with {self.current_index} documents")
 
         if similarity_metric.__contains__("dot"):
