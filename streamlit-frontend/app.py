@@ -75,12 +75,8 @@ def main():
                         # Use direct Ollama chat
                         ollama_client = get_ollama_client()
                         response = ollama_client.invoke(prompt)
-                    
-                    if isinstance(response, str):
                         st.markdown(response)
-                    else:
-                        # Handle streaming response (response is already displayed)
-                        pass
+                    
                     st.session_state.messages.append({"role": "assistant", "content": response})
                     
                 except Exception as e:
