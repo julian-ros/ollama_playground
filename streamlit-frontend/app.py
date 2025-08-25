@@ -100,7 +100,7 @@ def get_streaming_embeddings_response(prompt, retrieve_embeddings=True, include_
         # Call the streaming embeddings API
         response = requests.post(
             f"{EMBEDDINGS_API_URL}/chat/stream",
-            json={"text": json.dumps(conversation)},
+            json={"text": conversation},
             stream=True,
             timeout=120
         )
@@ -179,7 +179,7 @@ def get_embeddings_response(prompt, retrieve_embeddings=True, include_history=Tr
         # Call the embeddings API
         response = requests.post(
             f"{EMBEDDINGS_API_URL}/chat",
-            json={"text": json.dumps(conversation)},
+            json={"text": conversation},
             timeout=120
         )
         

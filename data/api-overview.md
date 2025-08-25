@@ -1,17 +1,17 @@
-# CloudSync API Documentation
+# Julio API Documentation
 
 ## Overview
 
-CloudSync API is a comprehensive cloud storage and synchronization service that allows developers to integrate file storage, real-time synchronization, and collaboration features into their applications.
+Julio API is a comprehensive task management and productivity service that allows developers to integrate task tracking, project management, and team collaboration features into their applications.
 
 ## Base URL
 ```
-https://api.cloudsync.com/v1
+https://api.julio.com/v1
 ```
 
 ## Authentication
 
-CloudSync API uses API keys for authentication. Include your API key in the header of all requests:
+Julio API uses API keys for authentication. Include your API key in the header of all requests:
 
 ```
 Authorization: Bearer YOUR_API_KEY
@@ -19,38 +19,37 @@ Authorization: Bearer YOUR_API_KEY
 
 ## Rate Limits
 
-- **Free Tier**: 1,000 requests per hour
-- **Pro Tier**: 10,000 requests per hour  
+- **Free Tier**: 500 requests per hour
+- **Pro Tier**: 5,000 requests per hour  
 - **Enterprise**: Unlimited requests
 
-## Supported File Types
+## Supported Task Types
 
-CloudSync supports the following file types:
-- Documents: PDF, DOC, DOCX, TXT, MD
-- Images: JPG, PNG, GIF, SVG, WEBP
-- Videos: MP4, AVI, MOV, WMV
-- Audio: MP3, WAV, FLAC, AAC
-- Archives: ZIP, RAR, 7Z, TAR
+Julio supports the following task types:
+- Personal Tasks: TODO, REMINDER, GOAL, HABIT
+- Project Tasks: MILESTONE, FEATURE, BUG, RESEARCH
+- Team Tasks: MEETING, REVIEW, DISCUSSION, DECISION
+- Recurring Tasks: DAILY, WEEKLY, MONTHLY, CUSTOM
 
 ## Key Features
 
 ### Real-time Synchronization
-Files are synchronized across all connected devices within 2-3 seconds of any change.
+Tasks are synchronized across all connected devices within 1-2 seconds of any change.
 
-### Version Control
-Every file change creates a new version, with up to 30 versions stored per file.
+### Smart Prioritization
+AI-powered task prioritization based on deadlines, importance, and user behavior patterns.
 
-### Collaboration
-Multiple users can collaborate on files with real-time conflict resolution.
+### Team Collaboration
+Multiple team members can collaborate on projects with real-time updates and notifications.
 
-### Security
-All files are encrypted using AES-256 encryption both in transit and at rest.
+### Analytics & Insights
+Comprehensive productivity analytics with time tracking and performance insights.
 
 ## Getting Started
 
-1. Sign up for a CloudSync account at https://cloudsync.com
+1. Sign up for a Julio account at https://julio.com
 2. Generate an API key from your dashboard
-3. Install the CloudSync SDK for your preferred language
+3. Install the Julio SDK for your preferred language
 4. Start building with our comprehensive API endpoints
 
 ## SDK Support

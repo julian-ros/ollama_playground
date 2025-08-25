@@ -1,23 +1,22 @@
 {
   "webhooks_api": {
-    "overview": "CloudSync Webhooks allow you to receive real-time notifications when events occur in your account",
-    "base_url": "https://api.cloudsync.com/v1/webhooks",
+    "overview": "Julio Webhooks allow you to receive real-time notifications when events occur in your workspace",
+    "base_url": "https://api.julio.com/v1/webhooks",
     "authentication": "Bearer token required in Authorization header",
     "supported_events": [
-      "file.uploaded",
-      "file.updated", 
-      "file.deleted",
-      "file.shared",
-      "folder.created",
-      "folder.updated",
-      "folder.deleted",
-      "share.created",
-      "share.accessed",
-      "share.expired",
-      "user.invited",
-      "user.joined",
-      "sync.completed",
-      "sync.failed"
+      "task.created",
+      "task.updated", 
+      "task.completed",
+      "task.deleted",
+      "project.created",
+      "project.updated",
+      "project.completed",
+      "project.deleted",
+      "team.member_added",
+      "team.member_removed",
+      "comment.created",
+      "deadline.approaching",
+      "milestone.reached"
     ],
     "endpoints": {
       "create_webhook": {
@@ -25,16 +24,16 @@
         "path": "/v1/webhooks",
         "description": "Create a new webhook endpoint",
         "request_body": {
-          "url": "https://your-app.com/webhooks/cloudsync",
-          "events": ["file.uploaded", "file.deleted"],
+          "url": "https://your-app.com/webhooks/julio",
+          "events": ["task.created", "task.completed"],
           "secret": "your_webhook_secret",
           "active": true,
-          "description": "Webhook for file events"
+          "description": "Webhook for task events"
         },
         "response": {
           "id": "webhook_123abc",
-          "url": "https://your-app.com/webhooks/cloudsync",
-          "events": ["file.uploaded", "file.deleted"],
+          "url": "https://your-app.com/webhooks/julio",
+          "events": ["task.created", "task.completed"],
           "secret": "your_webhook_secret",
           "active": true,
           "created_at": "2024-01-15T10:30:00Z",
@@ -74,17 +73,17 @@
       }
     },
     "webhook_payload_examples": {
-      "file_uploaded": {
-        "event": "file.uploaded",
+      "task_created": {
+        "event": "task.created",
         "timestamp": "2024-01-15T10:30:00Z",
         "data": {
-          "file": {
-            "id": "file_abc123",
-            "name": "document.pdf",
-            "size": 2048576,
-            "mime_type": "application/pdf",
-            "folder_id": "folder_xyz789",
-            "uploaded_by": "user_def456"
+          "task": {
+            "id": "task_abc123",
+            "title": "Complete project proposal",
+            "status": "todo",
+            "priority": "high",
+            "project_id": "proj_xyz789",
+            "assignee_id": "user_def456"
           },
           "user": {
             "id": "user_def456",
@@ -93,27 +92,28 @@
           }
         }
       },
-      "share_accessed": {
-        "event": "share.accessed",
+      "deadline_approaching": {
+        "event": "deadline.approaching",
         "timestamp": "2024-01-15T10:30:00Z",
         "data": {
-          "share": {
-            "id": "share_ghi789",
-            "resource_type": "file",
-            "resource_id": "file_abc123"
+          "task": {
+            "id": "task_abc123",
+            "title": "Complete project proposal",
+            "due_date": "2024-01-16T17:00:00Z",
+            "hours_until_due": 24
           },
-          "access": {
-            "ip_address": "192.168.1.100",
-            "user_agent": "Mozilla/5.0...",
-            "action": "download"
+          "assignee": {
+            "id": "user_def456",
+            "email": "john@example.com",
+            "name": "John Doe"
           }
         }
       }
     },
     "security": {
       "signature_verification": {
-        "description": "CloudSync signs webhook payloads with HMAC-SHA256",
-        "header": "X-CloudSync-Signature",
+        "description": "Julio signs webhook payloads with HMAC-SHA256",
+        "header": "X-Julio-Signature",
         "algorithm": "sha256",
         "example": "sha256=a1b2c3d4e5f6..."
       },

@@ -2,11 +2,11 @@
 
 ## API Key Authentication
 
-CloudSync API uses API keys for authentication. You can generate and manage your API keys from the CloudSync dashboard.
+Julio API uses API keys for authentication. You can generate and manage your API keys from the Julio dashboard.
 
 ### Obtaining an API Key
 
-1. Log in to your CloudSync dashboard
+1. Log in to your Julio dashboard
 2. Navigate to Settings > API Keys
 3. Click "Generate New Key"
 4. Copy and securely store your API key
@@ -16,21 +16,21 @@ CloudSync API uses API keys for authentication. You can generate and manage your
 Include your API key in the `Authorization` header of every request:
 
 ```http
-GET /v1/files
-Authorization: Bearer cs_live_1234567890abcdef
+GET /v1/tasks
+Authorization: Bearer julio_live_1234567890abcdef
 Content-Type: application/json
 ```
 
 ### API Key Types
 
 #### Development Keys
-- Prefix: `cs_dev_`
+- Prefix: `julio_dev_`
 - Limited to 100 requests per hour
 - Only work with test data
-- Cannot access production files
+- Cannot access production tasks
 
 #### Production Keys
-- Prefix: `cs_live_`
+- Prefix: `julio_live_`
 - Full rate limits apply
 - Access to all account data
 - Should be kept secure
@@ -48,7 +48,7 @@ Content-Type: application/json
 API keys can have different permission levels:
 
 - **Read Only**: Can only retrieve data
-- **Read/Write**: Can create, update, and delete files
+- **Read/Write**: Can create, update, and delete tasks and projects
 - **Admin**: Full access including user management
 
 ### Error Responses
