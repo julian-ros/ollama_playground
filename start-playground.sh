@@ -13,6 +13,10 @@ SERVICES_TO_LOG=${COMPOSE_LOG_SERVICES:-}
 # Convert the comma-separated string into an array
 IFS=',' read -r -a SERVICE_ARRAY <<< "$SERVICES_TO_LOG"
 
+echo "Stopping and removing all previous containers, networks, and volumes..."
+echo "Note: This will also remove Ollama models, which will be re-downloaded."
+docker-compose down -v
+
 echo "Building and starting all Docker Compose services in detached mode..."
 # Use --build to ensure images are rebuilt if necessary
 docker-compose up --build -d
