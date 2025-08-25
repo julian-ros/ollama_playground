@@ -74,7 +74,7 @@ services:
 
 volumes:
   ollama_data:
-    driver: local
+    external: true
   embeddings_cache:
     driver: local
 

@@ -14,7 +14,7 @@ SERVICES_TO_LOG=${COMPOSE_LOG_SERVICES:-}
 IFS=',' read -r -a SERVICE_ARRAY <<< "$SERVICES_TO_LOG"
 
 echo "Stopping and removing all previous containers, networks, and volumes..."
-echo "Note: This will also remove Ollama models, which will be re-downloaded."
+echo "Note: Ollama models will be preserved in the 'ollama_data' volume."
 docker-compose down -v
 
 echo "Building and starting all Docker Compose services in detached mode..."
