@@ -1,0 +1,10 @@
+# This directory is for corporate CA certificates
+# 
+# For corporate environments:
+#   Place your corporate CA certificate as 'my_corporate_ca.crt' in this directory
+#
+# For standalone environments:
+#   Create an empty file named 'my_corporate_ca.crt' in this directory:
+#   touch certs/my_corporate_ca.crt
+#
+# This ensures the Docker COPY command always succeeds regardless of environment.

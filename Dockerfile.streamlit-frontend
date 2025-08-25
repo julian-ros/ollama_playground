@@ -5,9 +5,35 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a directory for extra CA certificates inside the container
+RUN mkdir -p /usr/local/share/ca-certificates/extra
+
+# Copy your corporate CA certificate from the host's 'certs' folder.
+# This COPY command requires 'certs/my_corporate_ca.crt' to exist in the build context.
+# For standalone environments, ensure this file is present but empty.
+COPY certs/my_corporate_ca.crt /usr/local/share/ca-certificates/extra/my_corporate_ca.crt
+
+# Conditionally update CA certificates and set PIP_CERT.
+# This step will only execute if the copied certificate file has content (is not empty).
+RUN if [ -s /usr/local/share/ca-certificates/extra/my_corporate_ca.crt ]; then \
+        echo "Corporate CA certificate found. Updating system CA certificates."; \
+        update-ca-certificates; \
+        echo "Setting PIP_CERT environment variable for pip."; \
+        # Use a script to set PIP_CERT so it's active for subsequent RUN commands and runtime
+        echo "export PIP_CERT=/usr/local/share/ca-certificates/extra/my_corporate_ca.crt" > /etc/profile.d/pip_cert.sh; \
+        chmod +x /etc/profile.d/pip_cert.sh; \
+    else \
+        echo "Corporate CA certificate not found or is empty. Skipping CA update and PIP_CERT setting."; \
+    fi
+
+# Source the profile script to make PIP_CERT active for this build step
+RUN . /etc/profile.d/pip_cert.sh 2>/dev/null || true
+
 # Copy requirements and install Python dependencies
+# pip will use the PIP_CERT if it was set in the previous step.
 COPY streamlit-frontend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
