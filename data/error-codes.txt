@@ -1,0 +1,100 @@
+Julio API Error Codes Reference
+
+HTTP Status Codes and Error Messages
+
+200 OK - Request successful
+201 Created - Resource created successfully  
+204 No Content - Request successful, no content returned
+400 Bad Request - Invalid request parameters
+401 Unauthorized - Invalid or missing API key
+403 Forbidden - Insufficient permissions
+404 Not Found - Resource not found
+409 Conflict - Resource conflict (e.g., duplicate name)
+413 Payload Too Large - Request body too large
+429 Too Many Requests - Rate limit exceeded
+500 Internal Server Error - Server error
+502 Bad Gateway - Upstream service error
+503 Service Unavailable - Service temporarily unavailable
+
+Detailed Error Codes:
+
+AUTH_001 - Invalid API key format
+AUTH_002 - API key not found
+AUTH_003 - API key expired
+AUTH_004 - API key revoked
+AUTH_005 - Insufficient permissions for operation
+
+TASK_001 - Task not found
+TASK_002 - Task title too long (max 255 characters)
+TASK_003 - Invalid task status
+TASK_004 - Invalid priority level
+TASK_005 - Duplicate task title in project
+TASK_006 - Task is locked by another user
+TASK_007 - Invalid due date format
+TASK_008 - Cannot assign task to inactive user
+TASK_009 - Task dependency cycle detected
+
+PROJECT_001 - Project not found
+PROJECT_002 - Project name too long (max 255 characters)
+PROJECT_003 - Invalid project status
+PROJECT_004 - Duplicate project name
+PROJECT_005 - Cannot delete project with active tasks
+PROJECT_006 - Maximum team size exceeded (50 members)
+PROJECT_007 - Invalid date range (end date before start date)
+
+TEAM_001 - Team member not found
+TEAM_002 - User already in project team
+TEAM_003 - Cannot remove project owner
+TEAM_004 - Invalid team member role
+TEAM_005 - User invitation pending
+TEAM_006 - Maximum collaborators exceeded
+
+WORKSPACE_001 - Insufficient workspace storage
+WORKSPACE_002 - Workspace quota exceeded
+WORKSPACE_003 - Account suspended
+WORKSPACE_004 - Workspace service unavailable
+
+NOTIFICATION_001 - Invalid notification preferences
+NOTIFICATION_002 - Email delivery failed
+NOTIFICATION_003 - Push notification failed
+NOTIFICATION_004 - Notification service unavailable
+
+WEBHOOK_001 - Webhook URL invalid
+WEBHOOK_002 - Webhook delivery failed
+WEBHOOK_003 - Webhook signature invalid
+WEBHOOK_004 - Webhook timeout
+WEBHOOK_005 - Too many webhook failures
+
+RATE_001 - API rate limit exceeded
+RATE_002 - Task creation rate limit exceeded  
+RATE_003 - Project update rate limit exceeded
+RATE_004 - Request rate limit exceeded
+
+VALIDATION_001 - Missing required field
+VALIDATION_002 - Invalid field format
+VALIDATION_003 - Field value out of range
+VALIDATION_004 - Invalid JSON format
+VALIDATION_005 - Request body too large
+
+Common Error Response Format:
+{
+  "error": "TASK_001",
+  "message": "The requested task does not exist",
+  "code": 404,
+  "details": {
+    "task_id": "task_abc123",
+    "timestamp": "2024-01-15T10:30:00Z"
+  },
+  "help_url": "https://docs.julio.com/errors/TASK_001"
+}
+
+Rate Limiting Headers:
+X-RateLimit-Limit: 500
+X-RateLimit-Remaining: 499
+X-RateLimit-Reset: 1642248300
+
+Retry Guidelines:
+- 429 errors: Use exponential backoff
+- 5xx errors: Retry after 1-5 seconds
+- Network errors: Retry up to 3 times
+- Task creation errors: Check for duplicates first

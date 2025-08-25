@@ -1,0 +1,19 @@
+# Sample Document
+
+This is a sample document to test the embeddings functionality.
+
+## Features
+
+- Document processing with Langchain
+- Vector embeddings with OLLAMA MiniLM
+- Fast similarity search with HyperDB
+- Local processing without external APIs
+
+## Usage
+
+Place your documents in the data directory and the system will automatically:
+1. Load and parse them
+2. Generate embeddings
+3. Store them for fast retrieval
+
+Supported formats: .txt, .md, .markdown, .json

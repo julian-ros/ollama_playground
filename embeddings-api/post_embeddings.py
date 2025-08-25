@@ -1,7 +1,7 @@
 import os
 import json
 from fastapi import APIRouter, Request
-from src.vector_search_api import VectorSearchAPI
+from .src.vector_search_api import VectorSearchAPI
 
 class Response:
     def __init__(self, result: bool, messages: list, status_code: int, exception: str = None):

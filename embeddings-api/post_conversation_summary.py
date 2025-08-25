@@ -1,6 +1,6 @@
 import json
 from fastapi import APIRouter, Request
-from src.summarizer import Summarizer
+from .src.summarizer import Summarizer
 
 class Response:
     def __init__(self, result: bool, messages: list, status_code: int, exception: str = None):
