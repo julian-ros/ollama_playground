@@ -183,3 +183,179 @@ curl http://localhost:8000/docs
 curl http://localhost:11434/api/tags
 curl http://localhost:11435/api/tags
 ```
+## API TESTING
+
+### Testing Embeddings API Endpoints
+
+Once your services are running, you can test the embeddings API endpoints using curl:
+
+#### 1. Chat with Document Context
+
+Test the main chat endpoint that uses document embeddings for context-aware responses:
+
+```bash
+curl -X POST "http://localhost:8000/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I create a task using the Julio API?"
+        }
+      ],
+      "retrieve_embeddings": true,
+      "include_history_summary": false
+    }
+  }'
+```
+
+#### 2. Streaming Chat Response
+
+Test the streaming chat endpoint for real-time responses:
+
+```bash
+curl -X POST "http://localhost:8000/chat/stream" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the authentication methods for Julio API?"
+        }
+      ],
+      "retrieve_embeddings": true,
+      "include_history_summary": false
+    }
+  }'
+```
+
+#### 3. Get Document Embeddings
+
+Retrieve relevant document chunks based on a query:
+
+```bash
+curl -X POST "http://localhost:8000/embeddings" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "{\"messages\": [{\"role\": \"user\", \"content\": \"API authentication\"}]}"
+  }'
+```
+
+#### 4. Conversation Summarization
+
+Test the conversation summary feature:
+
+```bash
+curl -X POST "http://localhost:8000/conversation-summary" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "{\"messages\": [
+      {\"role\": \"system\", \"content\": \"You are a helpful assistant.\"},
+      {\"role\": \"user\", \"content\": \"Tell me about Julio API\"},
+      {\"role\": \"assistant\", \"content\": \"Julio API is a task management service...\"},
+      {\"role\": \"user\", \"content\": \"How do I authenticate?\"}
+    ]}"
+  }'
+```
+
+### Understanding API Responses
+
+#### Chat Response Format
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "To create a task using the Julio API, you need to make a POST request to /v1/tasks with your API key..."
+      }
+    }
+  ]
+}
+```
+
+#### Embeddings Response Format
+```json
+{
+  "result": true,
+  "messages": [
+    {
+      "role": "user",
+      "content": "API Key Authentication\n\nJulio API uses API keys for authentication..."
+    },
+    {
+      "role": "user",
+      "content": "Include your API key in the Authorization header..."
+    }
+  ],
+  "status_code": 200
+}
+```
+
+#### Streaming Response Format
+Streaming responses return Server-Sent Events (SSE) format:
+```
+data: {"choices":[{"delta":{"content":"To"}}]}
+
+data: {"choices":[{"delta":{"content":" create"}}]}
+
+data: {"choices":[{"delta":{"content":" a"}}]}
+
+data: [DONE]
+```
+
+### Testing Different Scenarios
+
+#### Test Without Document Context
+```bash
+curl -X POST "http://localhost:8000/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "What is the weather like?"
+        }
+      ],
+      "retrieve_embeddings": false,
+      "include_history_summary": false
+    }
+  }'
+```
+
+#### Test With Conversation History
+```bash
+curl -X POST "http://localhost:8000/chat" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about Julio API"
+        },
+        {
+          "role": "assistant",
+          "content": "Julio API is a comprehensive task management service..."
+        },
+        {
+          "role": "user",
+          "content": "What about rate limits?"
+        }
+      ],
+      "retrieve_embeddings": true,
+      "include_history_summary": true
+    }
+  }'
+```
+
+### API Documentation
+
+For interactive API testing, visit the automatically generated documentation:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+These interfaces allow you to test all endpoints directly from your browser with a user-friendly interface.
