@@ -12,15 +12,19 @@ done
 
 echo "Ollama server is ready!"
 
-# Pull required models based on environment variable
-if [ "$OLLAMA_MODEL_TYPE" = "chat" ]; then
-    echo "Pulling chat model: $OLLAMA_CHAT_MODEL_STREAMLIT"
-    ollama pull $OLLAMA_CHAT_MODEL_STREAMLIT
-elif [ "$OLLAMA_MODEL_TYPE" = "embeddings" ]; then
-    echo "Pulling embeddings model: $OLLAMA_EMBEDDINGS_MODEL"
-    ollama pull $OLLAMA_EMBEDDINGS_MODEL
+# Pull all required models
+echo "Pulling chat model for Streamlit: $OLLAMA_CHAT_MODEL_STREAMLIT"
+ollama pull $OLLAMA_CHAT_MODEL_STREAMLIT
+
+echo "Pulling embeddings model: $OLLAMA_EMBEDDINGS_MODEL"
+ollama pull $OLLAMA_EMBEDDINGS_MODEL
+
+# Only pull embeddings API chat model if it's different from Streamlit model
+if [ "$OLLAMA_CHAT_MODEL_EMBEDDINGS_API" != "$OLLAMA_CHAT_MODEL_STREAMLIT" ]; then
     echo "Pulling chat model for embeddings API: $OLLAMA_CHAT_MODEL_EMBEDDINGS_API"
     ollama pull $OLLAMA_CHAT_MODEL_EMBEDDINGS_API
+else
+    echo "Embeddings API will use the same chat model as Streamlit: $OLLAMA_CHAT_MODEL_STREAMLIT"
 fi
 
 echo "Model(s) ready!"
